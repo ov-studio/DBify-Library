@@ -26,14 +26,14 @@ dbify["vehicle"] = {
     create = function(callback, ...)
         if not dbify.postgres.__connection__.instance then return false end
         if not callback or (type(callback) ~= "function") then return false end
-        dbQuery(function(queryHandler, arguments)
+        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local _, _, vehicleID = vEngine.db:poll(queryHandler, 0)
+            local _, _, vehicleID = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
             local result = vehicleID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, dbify.postgres.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn)
+        end, {{...}}, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn)
         return true
     end,
 
@@ -43,7 +43,7 @@ dbify["vehicle"] = {
         return dbify.vehicle.getData(vehicleID, {dbify.vehicle.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = vEngine.db:exec(dbify.postgres.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn, vehicleID)
+                result = dbify.postgres.__connection__.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn, vehicleID)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -79,5 +79,5 @@ dbify["vehicle"] = {
 
 addEventHandler("onAssetStart", function()
     if not dbify.postgres.__connection__.instance then return false end
-    vEngine.db:exec(dbify.postgres.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn)
+    dbify.postgres.__connection__.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.vehicle.__connection__.table, dbify.vehicle.__connection__.keyColumn)
 end)

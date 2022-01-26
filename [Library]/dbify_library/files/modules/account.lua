@@ -29,7 +29,7 @@ dbify["account"] = {
         return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if not result then
-                result = vEngine.db:exec(dbify.postgres.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(?)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
+                result = dbify.postgres.__connection__.instance:exec("INSERT INTO `??` (`??`) VALUES(?)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -47,7 +47,7 @@ dbify["account"] = {
         return dbify.account.getData(accountName, {dbify.account.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = vEngine.db:exec(dbify.postgres.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
+                result = dbify.postgres.__connection__.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn, accountName)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -83,7 +83,7 @@ dbify["account"] = {
 
 vEngine.event.on("onAssetStart", function()
     if not dbify.postgres.__connection__.instance then return false end
-    vEngine.db:exec(dbify.postgres.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn)
+    dbify.postgres.__connection__.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` VARCHAR(100) PRIMARY KEY)", dbify.account.__connection__.table, dbify.account.__connection__.keyColumn)
     --TODO: LOOP THOUGH EXISTING PLAYERS AND FORCE CREATE AGAIN.
 end)
 

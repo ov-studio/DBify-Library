@@ -35,9 +35,9 @@ dbify["inventory"] = {
     ensureItems = function(items, callback, ...)
         if not dbify.postgres.__connection__.instance then return false end
         if not items or (type(items) ~= "table") or not callback or (type(callback) ~= "function") then return false end
-        dbQuery(function(queryHandler, arguments)
+        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local result = vEngine.db:poll(queryHandler, 0)
+            local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
             local itemsToBeAdded, itemsToBeDeleted = {}, {}
             if result and (#result > 0) then
                 for i, j in ipairs(result) do
@@ -59,7 +59,7 @@ dbify["inventory"] = {
                             dbify.postgres.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
                                 local callbackReference = callback
                                 if not isValid then
-                                    vEngine.db:exec(dbify.postgres.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                                    dbify.postgres.__connection__.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
                                 end
                                 if arguments[2] then
                                     if callbackReference and (type(callbackReference) == "function") then
@@ -80,7 +80,7 @@ dbify["inventory"] = {
                     dbify.postgres.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
                         local callbackReference = callback
                         if not isValid then
-                            vEngine.db:exec(dbify.postgres.__connection__.instance, "ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                            dbify.postgres.__connection__.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
                         end
                         if arguments[2] then
                             if callbackReference and (type(callbackReference) == "function") then
@@ -99,14 +99,14 @@ dbify["inventory"] = {
     create = function(callback, ...)
         if not dbify.postgres.__connection__.instance then return false end
         if not callback or (type(callback) ~= "function") then return false end
-        dbQuery(function(queryHandler, arguments)
+        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local _, _, inventoryID = vEngine.db:poll(queryHandler, 0)
+            local _, _, inventoryID = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
             local result = inventoryID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, dbify.postgres.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
+        end, {{...}}, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
         return true
     end,
 
@@ -116,7 +116,7 @@ dbify["inventory"] = {
         return dbify.inventory.getData(inventoryID, {dbify.inventory.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = vEngine.db:exec(dbify.postgres.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn, inventoryID)
+                result = dbify.postgres.__connection__.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn, inventoryID)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -335,5 +335,5 @@ dbify["inventory"] = {
 
 vEngine.event.on("onAssetStart", function()
     if not dbify.postgres.__connection__.instance then return false end
-    vEngine.db:exec(dbify.postgres.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
+    dbify.postgres.__connection__.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
 end)

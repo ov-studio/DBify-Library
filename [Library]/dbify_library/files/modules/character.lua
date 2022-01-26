@@ -26,14 +26,14 @@ dbify["character"] = {
     create = function(callback, ...)
         if not dbify.postgres.__connection__.instance then return false end
         if not callback or (type(callback) ~= "function") then return false end
-        dbQuery(function(queryHandler, arguments)
+        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
             local _, _, characterID = vEngine.db:poll(queryHandler, 0)
             local result = characterID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, dbify.postgres.__connection__.instance, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn)
+        end, {{...}}, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn)
         return true
     end,
 
@@ -43,7 +43,7 @@ dbify["character"] = {
         return dbify.character.getData(characterID, {dbify.character.__connection__.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = vEngine.db:exec(dbify.postgres.__connection__.instance, "DELETE FROM `??` WHERE `??`=?", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn, characterID)
+                result = dbify.postgres.__connection__.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn, characterID)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -79,5 +79,5 @@ dbify["character"] = {
 
 vEngine.event.on("onAssetStart", function()
     if not dbify.postgres.__connection__.instance then return false end
-    vEngine.db:exec(dbify.postgres.__connection__.instance, "CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn)
+    dbify.postgres.__connection__.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.character.__connection__.table, dbify.character.__connection__.keyColumn)
 end)

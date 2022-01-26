@@ -37,7 +37,7 @@ dbify["inventory"] = {
         if not items or (type(items) ~= "table") or not callback or (type(callback) ~= "function") then return false end
         dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+            local result = vEngine.db:poll(queryHandler, 0)
             local itemsToBeAdded, itemsToBeDeleted = {}, {}
             if result and (#result > 0) then
                 for i, j in ipairs(result) do
@@ -101,7 +101,7 @@ dbify["inventory"] = {
         if not callback or (type(callback) ~= "function") then return false end
         dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local _, _, inventoryID = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+            local _, _, inventoryID = vEngine.db:poll(queryHandler, 0)
             local result = inventoryID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)

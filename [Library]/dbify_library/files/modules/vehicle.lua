@@ -28,7 +28,7 @@ dbify["vehicle"] = {
         if not callback or (type(callback) ~= "function") then return false end
         dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
-            local _, _, vehicleID = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+            local _, _, vehicleID = vEngine.db:poll(queryHandler, 0)
             local result = vehicleID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)

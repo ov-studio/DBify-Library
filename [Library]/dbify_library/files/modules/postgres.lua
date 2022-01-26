@@ -25,7 +25,7 @@ dbify["postgres"] = {
             if not tableName or (type(tableName) ~= "string") or not callback or (type(callback) ~= "function") then return false end
             dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
                 local callbackReference = callback
-                local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                local result = vEngine.db:poll(queryHandler, 0)
                 result = ((result and (#result > 0)) and true) or false
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
@@ -53,7 +53,7 @@ dbify["postgres"] = {
                         end
                         dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
                             local callbackReference = callback
-                            local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                            local result = vEngine.db:poll(queryHandler, 0)
                             if result and (#result > 0) then
                                 if callbackReference and (type(callbackReference) == "function") then
                                     callbackReference(result, arguments)
@@ -77,7 +77,7 @@ dbify["postgres"] = {
                     if isValid then
                         dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
                             local callbackReference = callback
-                            local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                            local result = vEngine.db:poll(queryHandler, 0)
                             if result and (#result > 0) then
                                 if callbackReference and (type(callbackReference) == "function") then
                                     callbackReference(result, arguments)
@@ -105,7 +105,7 @@ dbify["postgres"] = {
                 if isValid then
                     dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
                         local callbackReference = callback
-                        local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                        local result = vEngine.db:poll(queryHandler, 0)
                         result = ((result and (#result > 0)) and true) or false
                         if callbackReference and (type(callbackReference) == "function") then
                             callbackReference(result, arguments)
@@ -133,7 +133,7 @@ dbify["postgres"] = {
                     queryString = queryString..")"
                     dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
                         local callbackReference = callback
-                        local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                        local result = vEngine.db:poll(queryHandler, 0)
                         result = ((result and (#result >= #arguments[1])) and true) or false
                         if callbackReference and (type(callbackReference) == "function") then
                             callbackReference(result, arguments[2])
@@ -253,7 +253,7 @@ dbify["postgres"] = {
                     end
                     dbify.postgres.__connection__.instance:query(function(queryHandler, soloFetch, arguments)
                         local callbackReference = callback
-                        local result = dbify.postgres.__connection__.instance:poll(queryHandler, 0)
+                        local result = vEngine.db:poll(queryHandler, 0)
                         if result and (#result > 0) then
                             if callbackReference and (type(callbackReference) == "function") then
                                 callbackReference((soloFetch and result[1]) or result, arguments)

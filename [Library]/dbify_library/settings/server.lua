@@ -4,7 +4,7 @@
      Author: vStudio
      Developer(s): Tron
      DOC: 26/01/2022
-     Desc: Server Sided Settings ]]--
+     Desc: Server-Sided Settings ]]--
 ----------------------------------------------------------------
 
 

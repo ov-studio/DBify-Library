@@ -15,7 +15,7 @@
 dbify["postgres"] = {
     connection = {
         instance = function()
-            dbify.postgres.connection.instance = call(resource, "fetchDatabase")
+            dbify.postgres.connection.instance = exports.dbify_library:fetchDatabase()
         end
     },
 

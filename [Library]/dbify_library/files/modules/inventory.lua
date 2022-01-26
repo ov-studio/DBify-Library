@@ -13,7 +13,7 @@
 -------------------
 
 dbify["inventory"] = {
-    __connection__ = {
+    connection = {
         table = "server_inventories",
         keyColumn = "id",
         itemFormat = {
@@ -28,14 +28,14 @@ dbify["inventory"] = {
     },
 
     fetchAll = function(keyColumns, callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
-        return dbify.postgres.table.fetchContents(dbify.inventory.__connection__.table, keyColumns, callback, ...)
+        if not dbify.postgres.connection.instance then return false end
+        return dbify.postgres.table.fetchContents(dbify.inventory.connection.table, keyColumns, callback, ...)
     end,
 
     ensureItems = function(items, callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
+        if not dbify.postgres.connection.instance then return false end
         if not items or (type(items) ~= "table") or not callback or (type(callback) ~= "function") then return false end
-        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+        dbify.postgres.connection.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
             local result = vEngine.db:poll(queryHandler, 0)
             local itemsToBeAdded, itemsToBeDeleted = {}, {}
@@ -53,13 +53,13 @@ dbify["inventory"] = {
             end
             arguments[1].items = itemsToBeAdded
             if #itemsToBeDeleted > 0 then
-                dbify.postgres.column.delete(dbify.inventory.__connection__.table, itemsToBeDeleted, function(result, arguments)
+                dbify.postgres.column.delete(dbify.inventory.connection.table, itemsToBeDeleted, function(result, arguments)
                     if result then
                         for i, j in ipairs(arguments[1].items) do
-                            dbify.postgres.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                            dbify.postgres.column.isValid(dbify.inventory.connection.table, j, function(isValid, arguments)
                                 local callbackReference = callback
                                 if not isValid then
-                                    dbify.postgres.__connection__.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                                    dbify.postgres.connection.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, arguments[1])
                                 end
                                 if arguments[2] then
                                     if callbackReference and (type(callbackReference) == "function") then
@@ -77,10 +77,10 @@ dbify["inventory"] = {
                 end, arguments[1], arguments[2])
             else
                 for i, j in ipairs(arguments[1].items) do
-                    dbify.postgres.column.isValid(dbify.inventory.__connection__.table, j, function(isValid, arguments)
+                    dbify.postgres.column.isValid(dbify.inventory.connection.table, j, function(isValid, arguments)
                         local callbackReference = callback
                         if not isValid then
-                            dbify.postgres.__connection__.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.__connection__.table, arguments[1])
+                            dbify.postgres.connection.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", dbify.inventory.connection.table, arguments[1])
                         end
                         if arguments[2] then
                             if callbackReference and (type(callbackReference) == "function") then
@@ -92,31 +92,31 @@ dbify["inventory"] = {
             end
         end, {{{
             items = items
-        }, {...}}}, dbify.postgres.__connection__.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.postgres.__connection__.databaseName, dbify.inventory.__connection__.table)
+        }, {...}}}, dbify.postgres.connection.instance, "SELECT `column_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name` LIKE 'item_%'", dbify.postgres.connection.databaseName, dbify.inventory.connection.table)
         return true
     end,
 
     create = function(callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
+        if not dbify.postgres.connection.instance then return false end
         if not callback or (type(callback) ~= "function") then return false end
-        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+        dbify.postgres.connection.instance:query(function(queryHandler, arguments)
             local callbackReference = callback
             local _, _, inventoryID = vEngine.db:poll(queryHandler, 0)
             local result = inventoryID or false
             if callbackReference and (type(callbackReference) == "function") then
                 callbackReference(result, arguments)
             end
-        end, {{...}}, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
+        end, {{...}}, "INSERT INTO `??` (`??`) VALUES(NULL)", dbify.inventory.connection.table, dbify.inventory.connection.keyColumn)
         return true
     end,
 
     delete = function(inventoryID, callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
+        if not dbify.postgres.connection.instance then return false end
         if not inventoryID or (type(inventoryID) ~= "number") then return false end
-        return dbify.inventory.getData(inventoryID, {dbify.inventory.__connection__.keyColumn}, function(result, arguments)
+        return dbify.inventory.getData(inventoryID, {dbify.inventory.connection.keyColumn}, function(result, arguments)
             local callbackReference = callback
             if result then
-                result = dbify.postgres.__connection__.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn, inventoryID)
+                result = dbify.postgres.connection.instance:exec("DELETE FROM `??` WHERE `??`=?", dbify.inventory.connection.table, dbify.inventory.connection.keyColumn, inventoryID)
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
@@ -129,28 +129,28 @@ dbify["inventory"] = {
     end,
 
     setData = function(inventoryID, dataColumns, callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
+        if not dbify.postgres.connection.instance then return false end
         if not inventoryID or (type(inventoryID) ~= "number") or not dataColumns or (type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.postgres.data.set(dbify.inventory.__connection__.table, dataColumns, {
-            {dbify.inventory.__connection__.keyColumn, inventoryID}
+        return dbify.postgres.data.set(dbify.inventory.connection.table, dataColumns, {
+            {dbify.inventory.connection.keyColumn, inventoryID}
         }, callback, ...)
     end,
 
     getData = function(inventoryID, dataColumns, callback, ...)
-        if not dbify.postgres.__connection__.instance then return false end
+        if not dbify.postgres.connection.instance then return false end
         if not inventoryID or (type(inventoryID) ~= "number") or not dataColumns or (type(dataColumns) ~= "table") or (#dataColumns <= 0) then return false end
-        return dbify.postgres.data.get(dbify.inventory.__connection__.table, dataColumns, {
-            {dbify.inventory.__connection__.keyColumn, inventoryID}
+        return dbify.postgres.data.get(dbify.inventory.connection.table, dataColumns, {
+            {dbify.inventory.connection.keyColumn, inventoryID}
         }, true, callback, ...)
     end,
 
     item = {
         __utilities__ = {
             pushnpop = function(inventoryID, items, processType, callback, ...)
-                if not dbify.postgres.__connection__.instance then return false end
+                if not dbify.postgres.connection.instance then return false end
                 if not inventoryID or (type(inventoryID) ~= "number") or not items or (type(items) ~= "table") or (#items <= 0) or not processType or (type(processType) ~= "string") or ((processType ~= "push") and (processType ~= "pop")) then return false end
                 return dbify.inventory.fetchAll({
-                    {dbify.inventory.__connection__.keyColumn, inventoryID},
+                    {dbify.inventory.connection.keyColumn, inventoryID},
                 }, function(result, arguments)
                     if result then
                         result = result[1]
@@ -161,9 +161,9 @@ dbify["inventory"] = {
                             prevItemData = (prevItemData and fromJSON(prevItemData)) or false
                             prevItemData = (prevItemData and prevItemData.data and (type(prevItemData.data) == "table") and prevItemData.item and (type(prevItemData.item) == "table") and prevItemData) or false
                             if not prevItemData then
-                                prevItemData = dbify.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
+                                prevItemData = dbify.table.clone(dbify.inventory.connection.itemFormat.content, true)
                             end
-                            prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)] = j[2] + (math.max(0, tonumber(prevItemData.property[(dbify.inventory.__connection__.itemFormat.counter)]) or 0)*((arguments[1].processType == "push" and 1) or -1))
+                            prevItemData.property[(dbify.inventory.connection.itemFormat.counter)] = j[2] + (math.max(0, tonumber(prevItemData.property[(dbify.inventory.connection.itemFormat.counter)]) or 0)*((arguments[1].processType == "push" and 1) or -1))
                             arguments[1].items[i][2] = toJSON(prevItemData)
                         end
                         dbify.inventory.setData(arguments[1].inventoryID, arguments[1].items, function(result, arguments)
@@ -186,7 +186,7 @@ dbify["inventory"] = {
             end,
 
             property_setnget = function(inventoryID, items, properties, processType, callback, ...)
-                if not dbify.postgres.__connection__.instance then return false end
+                if not dbify.postgres.connection.instance then return false end
                 if not inventoryID or (type(inventoryID) ~= "number") or not items or (type(items) ~= "table") or (#items <= 0) or not properties or (type(properties) ~= "table") or (#properties <= 0) or not processType or (type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
                 for i, j in ipairs(items) do
                     items[i] = "item_"..tostring(j)
@@ -200,11 +200,11 @@ dbify["inventory"] = {
                             j = (j and j.data and (type(j.data) == "table") and j.property and (type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
-                                    j = dbify.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
+                                    j = dbify.table.clone(dbify.inventory.connection.itemFormat.content, true)
                                 end
                                 for k, v in ipairs(arguments[1].properties) do
                                     v[1] = tostring(v[1])
-                                    if v[1] == dbify.inventory.__connection__.itemFormat.counter then
+                                    if v[1] == dbify.inventory.connection.itemFormat.counter then
                                         v[2] = math.max(0, tonumber(v[2]) or j.property[(v[1])])
                                     end
                                     j.property[(v[1])] = v[2]
@@ -246,7 +246,7 @@ dbify["inventory"] = {
             end,
 
             data_setnget = function(inventoryID, items, datas, processType, callback, ...)
-                if not dbify.postgres.__connection__.instance then return false end
+                if not dbify.postgres.connection.instance then return false end
                 if not inventoryID or (type(inventoryID) ~= "number") or not items or (type(items) ~= "table") or (#items <= 0) or not datas or (type(datas) ~= "table") or (#datas <= 0) or not processType or (type(processType) ~= "string") or ((processType ~= "set") and (processType ~= "get")) then return false end
                 for i, j in ipairs(items) do
                     items[i] = "item_"..tostring(j)
@@ -260,7 +260,7 @@ dbify["inventory"] = {
                             j = (j and j.data and (type(j.data) == "table") and j.property and (type(j.property) == "table") and j) or false
                             if arguments[1].processType == "set" then
                                 if not j then
-                                    j = dbify.table.clone(dbify.inventory.__connection__.itemFormat.content, true)
+                                    j = dbify.table.clone(dbify.inventory.connection.itemFormat.content, true)
                                 end
                                 for k, v in ipairs(arguments[1].datas) do
                                     j.data[tostring(v[1])] = v[2]
@@ -334,6 +334,6 @@ dbify["inventory"] = {
 -----------------------
 
 vEngine.event.on("onAssetStart", function()
-    if not dbify.postgres.__connection__.instance then return false end
-    dbify.postgres.__connection__.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.__connection__.table, dbify.inventory.__connection__.keyColumn)
+    if not dbify.postgres.connection.instance then return false end
+    dbify.postgres.connection.instance:exec("CREATE TABLE IF NOT EXISTS `??` (`??` INT AUTO_INCREMENT PRIMARY KEY)", dbify.inventory.connection.table, dbify.inventory.connection.keyColumn)
 end)

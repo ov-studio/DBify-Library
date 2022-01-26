@@ -13,29 +13,29 @@
 -------------------
 
 dbify["postgres"] = {
-    __connection__ = {
+    connection = {
         instance = function()
-            dbify.postgres.__connection__.instance = call(resource, "fetchDatabase")
+            dbify.postgres.connection.instance = call(resource, "fetchDatabase")
         end
     },
 
     table = {
         isValid = function(tableName, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not callback or (type(callback) ~= "function") then return false end
-            dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+            dbify.postgres.connection.instance:query(function(queryHandler, arguments)
                 local callbackReference = callback
                 local result = vEngine.db:poll(queryHandler, 0)
                 result = ((result and (#result > 0)) and true) or false
                 if callbackReference and (type(callbackReference) == "function") then
                     callbackReference(result, arguments)
                 end
-            end, {{...}}, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.postgres.__connection__.databaseName, tableName)
+            end, {{...}}, "SELECT `table_name` FROM information_schema.tables WHERE `table_schema`=? AND `table_name`=?", dbify.postgres.connection.databaseName, tableName)
             return true
         end,
 
         fetchContents = function(tableName, keyColumns, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not callback or (type(callback) ~= "function") then return false end
             keyColumns = ((keyColumns and (type(keyColumns) == "table") and (#keyColumns > 0)) and keyColumns) or false
             if keyColumns then
@@ -51,7 +51,7 @@ dbify["postgres"] = {
                             table.insert(queryArguments, tostring(j[2]))
                             queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                         end
-                        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+                        dbify.postgres.connection.instance:query(function(queryHandler, arguments)
                             local callbackReference = callback
                             local result = vEngine.db:poll(queryHandler, 0)
                             if result and (#result > 0) then
@@ -61,7 +61,7 @@ dbify["postgres"] = {
                             else
                                 callbackReference(false, arguments)
                             end
-                        end, {arguments[2]}, dbify.postgres.__connection__.instance, queryString, unpack(queryArguments))
+                        end, {arguments[2]}, dbify.postgres.connection.instance, queryString, unpack(queryArguments))
                     else
                         local callbackReference = callback
                         if callbackReference and (type(callbackReference) == "function") then
@@ -75,7 +75,7 @@ dbify["postgres"] = {
             else
                 return dbify.postgres.table.isValid(tableName, function(isValid, arguments)
                     if isValid then
-                        dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+                        dbify.postgres.connection.instance:query(function(queryHandler, arguments)
                             local callbackReference = callback
                             local result = vEngine.db:poll(queryHandler, 0)
                             if result and (#result > 0) then
@@ -85,7 +85,7 @@ dbify["postgres"] = {
                             else
                                 callbackReference(false, arguments)
                             end
-                        end, {arguments}, dbify.postgres.__connection__.instance, "SELECT * FROM `??`", tableName)
+                        end, {arguments}, dbify.postgres.connection.instance, "SELECT * FROM `??`", tableName)
                     else
                         local callbackReference = callback
                         if callbackReference and (type(callbackReference) == "function") then
@@ -99,18 +99,18 @@ dbify["postgres"] = {
 
     column = {
         isValid = function(tableName, columnName, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not columnName or (type(columnName) ~= "string") or not callback or (type(callback) ~= "function") then return false end
             return dbify.postgres.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
-                    dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+                    dbify.postgres.connection.instance:query(function(queryHandler, arguments)
                         local callbackReference = callback
                         local result = vEngine.db:poll(queryHandler, 0)
                         result = ((result and (#result > 0)) and true) or false
                         if callbackReference and (type(callbackReference) == "function") then
                             callbackReference(result, arguments)
                         end
-                    end, {arguments}, dbify.postgres.__connection__.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.postgres.__connection__.databaseName, tableName, columnName)
+                    end, {arguments}, dbify.postgres.connection.instance, "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND `column_name`=?", dbify.postgres.connection.databaseName, tableName, columnName)
                 else
                     local callbackReference = callback
                     if callbackReference and (type(callbackReference) == "function") then
@@ -121,24 +121,24 @@ dbify["postgres"] = {
         end,
 
         areValid = function(tableName, columns, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not columns or (type(columns) ~= "table") or (#columns <= 0) or not callback or (type(callback) ~= "function") then return false end
             return dbify.postgres.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
-                    local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.postgres.__connection__.databaseName, tableName}
+                    local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.postgres.connection.databaseName, tableName}
                     for i, j in ipairs(arguments[1]) do
                         table.insert(queryArguments, tostring(j))
                         queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #arguments[1]) and " OR") or "")
                     end
                     queryString = queryString..")"
-                    dbify.postgres.__connection__.instance:query(function(queryHandler, arguments)
+                    dbify.postgres.connection.instance:query(function(queryHandler, arguments)
                         local callbackReference = callback
                         local result = vEngine.db:poll(queryHandler, 0)
                         result = ((result and (#result >= #arguments[1])) and true) or false
                         if callbackReference and (type(callbackReference) == "function") then
                             callbackReference(result, arguments[2])
                         end
-                    end, {arguments}, dbify.postgres.__connection__.instance, queryString, unpack(queryArguments))
+                    end, {arguments}, dbify.postgres.connection.instance, queryString, unpack(queryArguments))
                 else
                     local callbackReference = callback
                     if callbackReference and (type(callbackReference) == "function") then
@@ -149,7 +149,7 @@ dbify["postgres"] = {
         end,
 
         delete = function(tableName, columns, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not columns or (type(columns) ~= "table") or (#columns <= 0) then return false end
             return dbify.postgres.table.isValid(tableName, function(isValid, arguments)
                 if isValid then
@@ -159,7 +159,7 @@ dbify["postgres"] = {
                         table.insert(queryArguments, tostring(j))
                         queryString = queryString.." DROP COLUMN `??`"..(((i < #arguments[1]) and ", ") or "")
                     end
-                    local result = dbify.postgres.__connection__.instance:exec(queryString, unpack(queryArguments))
+                    local result = dbify.postgres.connection.instance:exec(queryString, unpack(queryArguments))
                     if callbackReference and (type(callbackReference) == "function") then
                         callbackReference(result, arguments[2])
                     end
@@ -175,7 +175,7 @@ dbify["postgres"] = {
 
     data = {
         set = function(tableName, dataColumns, keyColumns, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not dataColumns or (type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
             local validateKeyColumns = {}
             for i, j in ipairs(keyColumns) do
@@ -200,10 +200,10 @@ dbify["postgres"] = {
                         dbify.postgres.column.isValid(arguments[1].tableName, j[1], function(isValid, arguments)
                             local callbackReference = callback
                             if not isValid then
-                                dbify.postgres.__connection__.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
+                                dbify.postgres.connection.instance:exec("ALTER TABLE `??` ADD COLUMN `??` TEXT", arguments[1], arguments[2])
                             end
                             if arguments[3] then
-                                local result = dbify.postgres.__connection__.instance:exec(arguments[3].queryString, unpack(arguments[3].queryArguments))
+                                local result = dbify.postgres.connection.instance:exec(arguments[3].queryString, unpack(arguments[3].queryArguments))
                                 if callbackReference and (type(callbackReference) == "function") then
                                     callbackReference(result, arguments[4])
                                 end
@@ -227,7 +227,7 @@ dbify["postgres"] = {
         end,
 
         get = function(tableName, dataColumns, keyColumns, soloFetch, callback, ...)
-            if not dbify.postgres.__connection__.instance then return false end
+            if not dbify.postgres.connection.instance then return false end
             if not tableName or (type(tableName) ~= "string") or not dataColumns or (type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (type(keyColumns) ~= "table") or (#keyColumns <= 0) or not callback or (type(callback) ~= "function") then return false end
             soloFetch = (soloFetch and true) or false
             local validateColumns = {}
@@ -251,7 +251,7 @@ dbify["postgres"] = {
                         table.insert(queryArguments, tostring(j[2]))
                         queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                     end
-                    dbify.postgres.__connection__.instance:query(function(queryHandler, soloFetch, arguments)
+                    dbify.postgres.connection.instance:query(function(queryHandler, soloFetch, arguments)
                         local callbackReference = callback
                         local result = vEngine.db:poll(queryHandler, 0)
                         if result and (#result > 0) then
@@ -263,7 +263,7 @@ dbify["postgres"] = {
                         if callbackReference and (type(callbackReference) == "function") then
                             callbackReference(false, arguments)
                         end
-                    end, {arguments[1].soloFetch, arguments[2]}, dbify.postgres.__connection__.instance, queryString, unpack(queryArguments))
+                    end, {arguments[1].soloFetch, arguments[2]}, dbify.postgres.connection.instance, queryString, unpack(queryArguments))
                 else
                     local callbackReference = callback
                     if callbackReference and (type(callbackReference) == "function") then

@@ -58,8 +58,8 @@ addEventHandler("onAssetStart", function(resourceSource)
         modules = {
             postgres = fetchFileData("files/modules/postgres.lua")..[[
                 resource = getResourceFromName("]]..resourceName..[[")
-                dbify.postgres.__connection__.databaseName = "]]..dbSettings.database..[["
-                dbify.postgres.__connection__.instance()
+                dbify.postgres.connection.databaseName = "]]..dbSettings.database..[["
+                dbify.postgres.connection.instance()
             ]],
             account = fetchFileData("files/modules/account.lua"),
             character = fetchFileData("files/modules/character.lua"),

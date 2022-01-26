@@ -1,10 +1,9 @@
 ----------------------------------------------------------------
 --[[ Resource: DBify Library
      Script: settings: server.lua
-     Server: -
-     Author: OvileAmriam
-     Developer: Aviril
-     DOC: 09/10/2021 (OvileAmriam)
+     Author: vStudio
+     Developer(s): Tron
+     DOC: 26/01/2022
      Desc: Server Sided Settings ]]--
 ----------------------------------------------------------------
 
@@ -12,11 +11,6 @@
 ------------------
 --[[ Settings ]]--
 ------------------
-
-syncSettings = {
-    syncAccounts = true,
-    syncSerials = true
-}
 
 dbSettings = {
     username = "",

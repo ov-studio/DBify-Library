@@ -1,0 +1,21 @@
+{
+    "asset": [
+        "name": "DBify Library",
+        "owner": "vStudio",
+        "type": "Library",
+        "version": "1.0.0"
+    ],
+
+    "exports": [
+        "server": [
+            "fetchImports",
+            "fetchDatabase"
+        ]
+    ],
+
+    "server": [
+        "utilities/server.lua",
+        "settings/server.lua",
+        "handlers/bundler.lua"
+    ]
+}

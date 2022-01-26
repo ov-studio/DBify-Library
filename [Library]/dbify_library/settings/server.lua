@@ -12,6 +12,7 @@
 --[[ Settings ]]--
 ------------------
 
+--Enter your postgres db's credentials here
 dbSettings = {
     username = "",
     password = "",

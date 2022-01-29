@@ -44,12 +44,12 @@ dbify["inventory"] = {
                     local columnName = j["COLUMN_NAME"]
                     local itemIndex = string.gsub(columnName, "item_", "", 1)
                     if not arguments[1].items[itemIndex] then
-                        table.insert(itemsToBeDeleted, columnName)
+                        vEngine.table.insert(itemsToBeDeleted, columnName)
                     end
                 end
             end
             for i, j in pairs(arguments[1].items) do
-                table.insert(itemsToBeAdded, "item_"..i)
+                vEngine.table.insert(itemsToBeAdded, "item_"..i)
             end
             arguments[1].items = itemsToBeAdded
             if #itemsToBeDeleted > 0 then
@@ -209,7 +209,7 @@ dbify["inventory"] = {
                                     end
                                     j.property[(v[1])] = v[2]
                                 end
-                                table.insert(properties, {i, toJSON(j)})
+                                vEngine.table.insert(properties, {i, toJSON(j)})
                             else
                                 local itemIndex = string.gsub(i, "item_", "", 1)
                                 properties[itemIndex] = {}
@@ -265,7 +265,7 @@ dbify["inventory"] = {
                                 for k, v in ipairs(arguments[1].datas) do
                                     j.data[tostring(v[1])] = v[2]
                                 end
-                                table.insert(datas, {i, toJSON(j)})
+                                vEngine.table.insert(datas, {i, toJSON(j)})
                             else
                                 local itemIndex = string.gsub(i, "item_", "", 1)
                                 datas[itemIndex] = {}

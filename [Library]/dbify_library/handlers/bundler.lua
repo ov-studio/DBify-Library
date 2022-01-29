@@ -69,11 +69,11 @@ addEventHandler("onAssetStart", function(resourceSource)
     }
 
     bundlerData = {}
-    table.insert(bundlerData, importedModules.bundler)
-    table.insert(bundlerData, importedModules.modules.postgres)
-    table.insert(bundlerData, importedModules.modules.account)
-    table.insert(bundlerData, importedModules.modules.character)
-    table.insert(bundlerData, importedModules.modules.vehicle)
-    table.insert(bundlerData, importedModules.modules.inventory)
+    vEngine.table.insert(bundlerData, importedModules.bundler)
+    vEngine.table.insert(bundlerData, importedModules.modules.postgres)
+    vEngine.table.insert(bundlerData, importedModules.modules.account)
+    vEngine.table.insert(bundlerData, importedModules.modules.character)
+    vEngine.table.insert(bundlerData, importedModules.modules.vehicle)
+    vEngine.table.insert(bundlerData, importedModules.modules.inventory)
 
 end)

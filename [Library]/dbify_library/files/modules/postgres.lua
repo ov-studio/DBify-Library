@@ -41,14 +41,14 @@ dbify["postgres"] = {
             if keyColumns then
                 local validateKeyColumns = {}
                 for i, j in ipairs(keyColumns) do
-                    table.insert(validateKeyColumns, j[1])
+                    vEngine.table.insert(validateKeyColumns, j[1])
                 end
                 return dbify.postgres.column.areValid(tableName, validateKeyColumns, function(areValid, arguments)
                     if areValid then
                         local queryString, queryArguments = "SELECT * FROM `??` WHERE", {arguments[1].tableName}
                         for i, j in ipairs(arguments[1].keyColumns) do
-                            table.insert(queryArguments, tostring(j[1]))
-                            table.insert(queryArguments, tostring(j[2]))
+                            vEngine.table.insert(queryArguments, tostring(j[1]))
+                            vEngine.table.insert(queryArguments, tostring(j[2]))
                             queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                         end
                         dbify.postgres.connection.instance:query(function(queryHandler, arguments)
@@ -127,7 +127,7 @@ dbify["postgres"] = {
                 if isValid then
                     local queryString, queryArguments = "SELECT `table_name` FROM information_schema.columns WHERE `table_schema`=? AND `table_name`=? AND (", {dbify.postgres.connection.databaseName, tableName}
                     for i, j in ipairs(arguments[1]) do
-                        table.insert(queryArguments, tostring(j))
+                        vEngine.table.insert(queryArguments, tostring(j))
                         queryString = queryString..(((i > 1) and " ") or "").."`column_name`=?"..(((i < #arguments[1]) and " OR") or "")
                     end
                     queryString = queryString..")"
@@ -156,7 +156,7 @@ dbify["postgres"] = {
                     local callbackReference = callback
                     local queryString, queryArguments = "ALTER TABLE `??`", {tableName}
                     for i, j in ipairs(arguments[1]) do
-                        table.insert(queryArguments, tostring(j))
+                        vEngine.table.insert(queryArguments, tostring(j))
                         queryString = queryString.." DROP COLUMN `??`"..(((i < #arguments[1]) and ", ") or "")
                     end
                     local result = dbify.postgres.connection.instance:exec(queryString, unpack(queryArguments))
@@ -179,23 +179,23 @@ dbify["postgres"] = {
             if not tableName or (type(tableName) ~= "string") or not dataColumns or (type(dataColumns) ~= "table") or (#dataColumns <= 0) or not keyColumns or (type(keyColumns) ~= "table") or (#keyColumns <= 0) then return false end
             local validateKeyColumns = {}
             for i, j in ipairs(keyColumns) do
-                table.insert(validateKeyColumns, j[1])
+                vEngine.table.insert(validateKeyColumns, j[1])
             end
             return dbify.postgres.column.areValid(tableName, validateKeyColumns, function(areValid, arguments)
                 if areValid then
                     local queryStrings, queryArguments = {"UPDATE `??` SET", " WHERE"}, {subLength = 0, arguments = {}}
                     for i, j in ipairs(arguments[1].keyColumns) do
                         j[1] = tostring(j[1])
-                        table.insert(queryArguments.arguments, j[1])
-                        table.insert(queryArguments.arguments, tostring(j[2]))
+                        vEngine.table.insert(queryArguments.arguments, j[1])
+                        vEngine.table.insert(queryArguments.arguments, tostring(j[2]))
                         queryStrings[2] = queryStrings[2].." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                     end
                     queryArguments.subLength = #queryArguments.arguments
-                    table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, arguments[1].tableName)
+                    vEngine.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, arguments[1].tableName)
                     for i, j in ipairs(arguments[1].dataColumns) do
                         j[1] = tostring(j[1])
-                        table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
-                        table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, tostring(j[2]))
+                        vEngine.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, j[1])
+                        vEngine.table.insert(queryArguments.arguments, (#queryArguments.arguments - queryArguments.subLength) + 1, tostring(j[2]))
                         queryStrings[1] = queryStrings[1].." `??`=?"..(((i < #arguments[1].dataColumns) and ",") or "")
                         dbify.postgres.column.isValid(arguments[1].tableName, j[1], function(isValid, arguments)
                             local callbackReference = callback
@@ -232,23 +232,23 @@ dbify["postgres"] = {
             soloFetch = (soloFetch and true) or false
             local validateColumns = {}
             for i, j in ipairs(dataColumns) do
-                table.insert(validateColumns, j)
+                vEngine.table.insert(validateColumns, j)
             end
             for i, j in ipairs(keyColumns) do
-                table.insert(validateColumns, j[1])
+                vEngine.table.insert(validateColumns, j[1])
             end
             return dbify.postgres.column.areValid(tableName, validateColumns, function(areValid, arguments)
                 if areValid then
                     local queryString, queryArguments = "SELECT", {}
                     for i, j in ipairs(arguments[1].dataColumns) do
-                        table.insert(queryArguments, tostring(j))
+                        vEngine.table.insert(queryArguments, tostring(j))
                         queryString = queryString.." `??`"..(((i < #arguments[1].dataColumns) and ",") or "")
                     end
-                    table.insert(queryArguments, arguments[1].tableName)
+                    vEngine.table.insert(queryArguments, arguments[1].tableName)
                     queryString = queryString.." FROM `??` WHERE"
                     for i, j in ipairs(arguments[1].keyColumns) do
-                        table.insert(queryArguments, tostring(j[1]))
-                        table.insert(queryArguments, tostring(j[2]))
+                        vEngine.table.insert(queryArguments, tostring(j[1]))
+                        vEngine.table.insert(queryArguments, tostring(j[2]))
                         queryString = queryString.." `??`=?"..(((i < #arguments[1].keyColumns) and " AND") or "")
                     end
                     dbify.postgres.connection.instance:query(function(queryHandler, soloFetch, arguments)
